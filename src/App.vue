@@ -16,7 +16,12 @@ export default {
   components: {
     Header,
     Footer
-  }
+  },
+  mounted() {
+     this.$store.dispatch('home/categoryList');
+     this.$store.dispatch('search/getSearchList');
+
+  },
 }
 </script>
 

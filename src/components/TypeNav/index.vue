@@ -2,32 +2,34 @@
      <!-- 商品分类导航 -->
         <div class="type-nav">
             <div class="container">
-               <div @mouseleave="leaveIndex">
+               <div @mouseleave="leaveIndex" @mouseenter="enterShow">
                     <h2 class="all">全部商品分类</h2>
-                    <div class="sort">
-                        <div class="all-sort-list2"  @click="goSearch">
-                            <div class="item" v-for="(c1,index) in categoryList" :key="c1.categoryId" :class="{cur:currentIndex==index}">
-                                <h3 @mouseenter="changeIndex(index)">
-                                    <a :data-categoryName="c1.categoryName" :data-category1Id="c1.categoryId">{{c1.categoryName}}</a> 
-                                </h3>
-                                <!-- 二三级分类 -->
-                                <div class="item-list clearfix" :style="{display:currentIndex==index?'block':'none'}">
-                                    <div class="subitem" v-for="c2 in c1.categoryChild" :key="c2.categoryId">
-                                        <dl class="fore">
-                                            <dt>
-                                                <a :data-categoryName="c2.categoryName" :data-category2Id="c2.categoryId">{{c2.categoryName}}</a>
-                                            </dt>
-                                            <dd>
-                                                <em v-for="c3 in c2.categoryChild" :key="c3.categoryId">
-                                                    <a :data-categoryName="c3.categoryName" :data-category3Id="c3.categoryId">{{c3.categoryName}}</a>
-                                                </em>
-                                            </dd>
-                                        </dl>
+                    <transition name="sort">
+                        <div class="sort" v-show="show">
+                            <div class="all-sort-list2"  @click="goSearch"  >
+                                <div class="item" v-for="(c1,index) in categoryList" :key="c1.categoryId" :class="{cur:currentIndex==index}">
+                                    <h3 @mouseenter="changeIndex(index)">
+                                        <a :data-categoryName="c1.categoryName" :data-category1Id="c1.categoryId">{{c1.categoryName}}</a> 
+                                    </h3>
+                                    <!-- 二三级分类 -->
+                                    <div class="item-list clearfix" :style="{display:currentIndex==index?'block':'none'}">
+                                        <div class="subitem" v-for="c2 in c1.categoryChild" :key="c2.categoryId">
+                                            <dl class="fore">
+                                                <dt>
+                                                    <a :data-categoryName="c2.categoryName" :data-category2Id="c2.categoryId">{{c2.categoryName}}</a>
+                                                </dt>
+                                                <dd>
+                                                    <em v-for="c3 in c2.categoryChild" :key="c3.categoryId">
+                                                        <a :data-categoryName="c3.categoryName" :data-category3Id="c3.categoryId">{{c3.categoryName}}</a>
+                                                    </em>
+                                                </dd>
+                                            </dl>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </transition>
                </div>
                 <nav class="nav">
                     <a href="###">服装城</a>
@@ -52,6 +54,7 @@ export default {
     data() {
         return {
             currentIndex:-1,
+            show:true,
         }
     },
     computed:{
@@ -66,7 +69,7 @@ export default {
         ...mapGetters('home',['categoryList'])
     },
     mounted() {
-        this.$store.dispatch('home/categoryList');
+        if(this.$route.path !=='/home') this.show=false;
    }, 
    methods: {
           changeIndex:throttle(function(index){
@@ -77,6 +80,9 @@ export default {
     //    },
        leaveIndex(){
            this.currentIndex=-1;
+           if(this.$route.path!=='/home'){
+               this.show=false;
+           }
        },
        goSearch(event){
            
@@ -94,9 +100,17 @@ export default {
                 }else{
                     query.category3Id=category3id;
                 }
+                if(this.$route.params){
+                    location.params=this.$route.params;
+                }
                 location.query=query;
                 this.$router.push(location);
             }
+       },
+       enterShow(){
+           if(this.$route.path!=='/home'){
+               this.show=true;
+           }
        }
    },
 }
@@ -112,6 +126,7 @@ export default {
             position: relative;
 
             .all {
+                cursor: pointer;
                 width: 210px;
                 height: 45px;
                 background-color: #e1251b;
@@ -129,7 +144,11 @@ export default {
                     line-height: 45px;
                     font-size: 16px;
                     color: #333;
+                   &:hover{
+                        color: #e1251b;     
+                    }
                 }
+                
             }
 
             .sort {
@@ -144,6 +163,7 @@ export default {
 
                 .all-sort-list2 {
                     .item {
+                        cursor: pointer;
                         h3 {
                             line-height: 30px;
                             font-size: 14px;
@@ -154,8 +174,16 @@ export default {
 
                             a {
                                 color: #333;
+                               
                             }
                         }
+                         &:hover{
+                             h3{
+                                 a{
+                                      color: #ffffff;
+                                 }
+                             }
+                            }
 
                         .item-list {
                             display: none;
@@ -190,6 +218,9 @@ export default {
                                         text-align: right;
                                         padding: 3px 6px 0 0;
                                         font-weight: 700;
+                                        a:hover{
+                                            text-decoration: underline;
+                                        }
                                     }
 
                                     dd {
@@ -205,6 +236,10 @@ export default {
                                             padding: 0 8px;
                                             margin-top: 5px;
                                             border-left: 1px solid #ccc;
+                                            a:hover{
+                                            text-decoration: underline;
+                                            color: #e1251b;
+                                        }
                                         }
                                     }
                                 }
@@ -221,6 +256,17 @@ export default {
                 .cur{
                     background: skyblue;
                 }
+                
+            }
+            .sort-enter{
+               height: 0px;
+            }
+            .sort-enter-to{
+                height: 460px;
+            }
+            .sort-enter-active{
+                transition: all 0.5s ease-out;
+                overflow: hidden;
             }
         }
     }

@@ -4,28 +4,7 @@
             <div class="sortList clearfix">
                 <div class="center">
                     <!--banner轮播-->
-                    <div class="swiper-container" id="mySwiper">
-                        <div class="swiper-wrapper">
-                            <div class="swiper-slide">
-                                <img src="./images/banner1.jpg" />
-                            </div>
-                            <!-- <div class="swiper-slide">
-                                <img src="./images/banner2.jpg" />
-                            </div>
-                            <div class="swiper-slide">
-                                <img src="./images/banner3.jpg" />
-                            </div>
-                            <div class="swiper-slide">
-                                <img src="./images/banner4.jpg" />
-                            </div> -->
-                        </div>
-                        <!-- 如果需要分页器 -->
-                        <div class="swiper-pagination"></div>
-
-                        <!-- 如果需要导航按钮 -->
-                        <div class="swiper-button-prev"></div>
-                        <div class="swiper-button-next"></div>
-                    </div>
+                    <Carousel :list="bannerList"/>
                 </div>
                 <div class="right">
                     <div class="news">
@@ -110,8 +89,16 @@
         </div>
 </template>
 <script>
+import {mapState} from 'vuex';
 export default {
-    
+    computed:{
+        ...mapState('home',['bannerList'])
+    },
+    mounted() {
+        this.$store.dispatch('home/bannerList');
+        //在new Swpier实例之前，页面中结构必须的有【把new Swiper实例放在mounte这里发现不行】因为dispatch当中涉及到异步语句，导致v-for遍历的时候结构还没有完全因此不行
+
+    },
 }
 </script>
 <style lang="less" scoped>

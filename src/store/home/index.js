@@ -1,12 +1,24 @@
 import { reqCategoryList } from '../../api'
+import { reqGetBannerList } from '../../api'
+import { reqFloorList } from '../../api'
+
+
 
 //home模块小仓库
 const state = {
     categoryList: [],
+    bannerList: [],
+    floorList: []
 }
 const mutations = {
     CategoryList(state, value) {
         state.categoryList = value;
+    },
+    BannerList(state, value) {
+        state.bannerList = value;
+    },
+    FloorList(state, value) {
+        state.floorList = value;
     }
 }
 const actions = {
@@ -15,6 +27,18 @@ const actions = {
         let result = await reqCategoryList();
         if (result.code == 200) {
             commit("CategoryList", result.data)
+        }
+    },
+    async bannerList({ commit }) {
+        let result = await reqGetBannerList();
+        if (result.code == 200) {
+            commit("BannerList", result.data)
+        }
+    },
+    async floorList({ commit }) {
+        let result = await reqFloorList();
+        if (result.code == 200) {
+            commit("FloorList", result.data)
         }
     }
 }
