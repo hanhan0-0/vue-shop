@@ -16,7 +16,13 @@ export const reqGetBannerList = () => {
 export const reqFloorList = () => {
         return mockRequests.get('/floor');
     }
-    //当前这个接口，给服务器传递参数params，至少是一个空对象
+    //当前这个接口（获取搜索模块的数据)，给服务器传递参数params，至少是一个空对象
+
 export const reqGetSearchInfo = (params) => {
-    return requests({ url: '/list', method: 'post', data: params || {} });
+        return requests({ url: '/list', method: 'post', data: params || {} });
+    }
+    //获取产品详情信息的接口URL: /api/item/{skuId}
+
+export const reqGoodesInfo = (skuId) => {
+    return requests({ url: `/item/${skuId}`, method: 'get' });
 }

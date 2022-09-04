@@ -8,6 +8,9 @@ import Home from '../pages/Home'
 import Search from '../pages/Search'
 import Login from '../pages/Login'
 import Register from '../pages/Register'
+import Detail from '../pages/Detail'
+
+
 
 // 先把vuerouter原型对象的push，先保存一份
 let originPush = VueRouter.prototype.push;
@@ -56,6 +59,14 @@ export default new VueRouter({
             path: '/register',
             component: Register,
             meta: { show: false }
-        }
-    ]
+        },
+        {
+            path: "/detail/:skuId",
+            component: Detail,
+            meta: { show: true }
+        },
+    ],
+    scrollBehavior(to, from, savedPosition) {
+        return { x: 0, y: 0 };
+    }
 })
