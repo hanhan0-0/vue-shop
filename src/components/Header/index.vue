@@ -58,6 +58,12 @@ export default {
             })
         }
     },
+    mounted() {
+        this.$bus.$on("clear",()=>{
+            this.keyword="";
+            console.log(this);
+        })
+    },
 }
 </script>
 <style lang="less" scoped>

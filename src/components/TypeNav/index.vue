@@ -85,7 +85,6 @@ export default {
            }
        },
        goSearch(event){
-           
            let Element=event.target;
            //获取到当前出发这个事件的节点【h3、a、dt、dl】，需要带有data-categoryname这样节点【一定是a标签】
            //节点有一个属性dataset属性，可以获取节点的自定义属性与属性值
