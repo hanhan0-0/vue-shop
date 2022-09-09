@@ -13,7 +13,7 @@
       <div class="cart-body">
         <ul class="cart-list" v-for="(cart) in cartInfoList" :key="cart.id">
           <li class="cart-list-con1">
-            <input type="checkbox" name="chk_list" :checked="cart.isChecked==1">
+            <input @change="updateChecked(cart,$event)" type="checkbox" name="chk_list" :checked="cart.isChecked==1">
           </li>
           <li class="cart-list-con2">
             <img :src="cart.imgUrl">
@@ -24,29 +24,25 @@
           </li>
           <li class="cart-list-con5">
             <div>
-               <a href="javascript:void(0)" class="mins">-</a>
-            <input autocomplete="off" type="text" :value="cart.skuNum" minnum="1" class="itxt">
-            <a href="javascript:void(0)" class="plus">+</a>
+                <a href="javascript:void(0)" class="mins"  @click="changeNum('minus',-1,cart)">-</a>
+                <input autocomplete="off" type="text" :value="cart.skuNum" minnum="1" class="itxt" @change="changeNum('change',$event.target.value*1,cart)">
+                <a href="javascript:void(0)"  class="plus" @click="changeNum('add',1,cart)" >+</a>
             </div>
           </li>
           <li class="cart-list-con6">
             <span class="sum">{{cart.cartPrice*cart.skuNum}}</span>
           </li>
           <li class="cart-list-con7">
-            <a href="#none" class="sindelet">删除</a>
+            <a href="#none" class="sindelet" @click="deleteCartById(cart.skuId)">删除</a>
             <br>
             <a href="#none">移到收藏</a>
           </li>
         </ul>
-
-      
-
-       
       </div>
     </div>
     <div class="cart-tool">
       <div class="select-all">
-        <input class="chooseAll" type="checkbox">
+        <input class="chooseAll" type="checkbox" :checked="isAllChecked">
         <span>全选</span>
       </div>
       <div class="option">
@@ -59,7 +55,7 @@
           <span>0</span>件商品</div>
         <div class="sumprice">
           <em>总价（不含运费） ：</em>
-          <i class="summoney">0</i>
+          <i class="summoney">{{totalPrice}}</i>
         </div>
         <div class="sumbtn">
           <a class="sum-btn" href="###" target="_blank">结算</a>
@@ -71,12 +67,25 @@
 
 <script>
 import {mapGetters} from 'vuex'
+import throttle from 'lodash/throttle';
   export default {
     name: 'ShopCart',
     computed:{
       ...mapGetters('shopcart',['cartList']),
       cartInfoList(){
         return this.cartList.cartInfoList || [];
+      },
+      //计算购买产品总价
+      totalPrice(){
+        let sum=0;
+        this.cartInfoList.forEach(item => {
+          sum+=item.skuNum*item.skuPrice;
+        });
+        return sum;
+      },
+      //判断底部复选框是否勾选，选中则全部商品都选中
+      isAllChecked(){
+        return this.cartInfoList.every((item)=>{item.isChecked==1});
       }
     },
     mounted() {
@@ -85,9 +94,58 @@ import {mapGetters} from 'vuex'
     methods:{
       getData(){
         this.$store.dispatch('shopcart/getCartList');
-
+      },
+      
+      changeNum:throttle(async function(type,value,cart){
+        switch(type){
+          case "add":
+            value=1;
+            break;
+          case "minus":
+            value=cart.skuNum>1?-1:0;
+            break;
+          case "change":
+            if(isNaN(value) || value<1){
+              value=0;
+            }
+            else{
+              value=parseInt(value)-cart.skuNum;
+            }
+        }
+        try{
+            await this.$store.dispatch('detail/addOrUpdateShopCart',{skuId:cart.skuId,skuNum:value});
+            this.getData();
+        }catch(error){
+          alert(error.message);
+        }},500),
+        //删除某一件商品
+      async deleteCartById(skuId){
+        try{
+          await this.$store.dispatch("shopcart/deleteCartListBySkuId",skuId);
+          this.getData();
+        }catch(error){
+          alert(error.message);
+        }
+      },
+      //修改勾选状态
+      async updateChecked(cart,event){
+        let checked=event.target.checked?"1":"0";
+        if(checked=='1'){
+          cart.isChecked==1;
+        }else{
+          cart.isChecked==0;
+        }
+        console.log(checked);
+        try{
+          await this.$store.dispatch("shopcart/updateCheckedById",{skuId:cart.skuId,isChecked:checked});
+          // this.getData();
+        }catch(error){
+          alert(error.message);
+        }
       }
     }
+       
+      
   }
 </script>
 
@@ -202,6 +260,9 @@ import {mapGetters} from 'vuex'
               width: 6px;
               text-align: center;
               padding: 8px;
+              &:hover{
+                text-decoration: none;
+              }
             }
 
             input {
@@ -221,6 +282,9 @@ import {mapGetters} from 'vuex'
               width: 6px;
               text-align: center;
               padding: 8px;
+              &:hover{
+                text-decoration: none;
+              }
             }
               }
            

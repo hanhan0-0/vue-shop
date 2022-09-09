@@ -34,4 +34,12 @@ export const reqAddOrUpdateShopCart = (skuId, skuNum) => {
 
 export const reqCartList = () => {
     return requests({ url: `/cart/cartList`, method: 'get' });
+};
+//删除购物车产品的接口 
+export const reqDeleteCartById = (skuId) => {
+    return requests({ url: `/cart/deleteCart/${skuId}`, method: 'delete' });
+};
+//修改产品选中的状态
+export const reqUpdateCheckedById = ({ skuId, isChecked }) => {
+    return requests({ url: `/cart/checkCart/${skuId}/${isChecked}`, method: 'delete' });
 }
