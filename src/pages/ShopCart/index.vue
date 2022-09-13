@@ -24,35 +24,35 @@
           </li>
           <li class="cart-list-con5">
             <div>
-                <a href="javascript:void(0)" class="mins"  @click="changeNum('minus',-1,cart)">-</a>
+                <a href="javascript:void(0)" class="mins"   @click.prevent="changeNum('minus',-1,cart)">-</a>
                 <input autocomplete="off" type="text" :value="cart.skuNum" minnum="1" class="itxt" @change="changeNum('change',$event.target.value*1,cart)">
-                <a href="javascript:void(0)"  class="plus" @click="changeNum('add',1,cart)" >+</a>
+                <a href="javascript:void(0)"  class="plus"  @click.prevent="changeNum('add',1,cart)" >+</a>
             </div>
           </li>
           <li class="cart-list-con6">
             <span class="sum">{{cart.cartPrice*cart.skuNum}}</span>
           </li>
           <li class="cart-list-con7">
-            <a href="#none" class="sindelet" @click="deleteCartById(cart.skuId)">删除</a>
+            <a href="javascript:;" class="sindelet"  @click.prevent="deleteCartById(cart.skuId)">删除</a>
             <br>
-            <a href="#none">移到收藏</a>
+            <a href="javascript:;">移到收藏</a>
           </li>
         </ul>
       </div>
     </div>
     <div class="cart-tool">
       <div class="select-all">
-        <input class="chooseAll" type="checkbox" :checked="isAllChecked">
+        <input  @change="updateAllCartChecked" class="chooseAll" type="checkbox" :checked="isAllChecked  && cartInfoList.length>0">
         <span>全选</span>
       </div>
       <div class="option">
-        <a href="#none">删除选中的商品</a>
-        <a href="#none">移到我的关注</a>
-        <a href="#none">清除下柜商品</a>
+        <a href="javascript:;"  @click.prevent="deleteAllCheckedCart">删除选中的商品</a>
+        <a href="javascript:;">移到我的关注</a>
+        <a href="javascript:;">清除下柜商品</a>
       </div>
       <div class="money-box">
         <div class="chosed">已选择
-          <span>0</span>件商品</div>
+          <span>{{totalNum}}</span>件商品</div>
         <div class="sumprice">
           <em>总价（不含运费） ：</em>
           <i class="summoney">{{totalPrice}}</i>
@@ -75,6 +75,14 @@ import throttle from 'lodash/throttle';
       cartInfoList(){
         return this.cartList.cartInfoList || [];
       },
+      //计算购买产品总数量
+      totalNum(){
+        let sum=0;
+        this.cartInfoList.forEach(item => {
+          sum+=item.skuNum;
+        });
+        return sum;
+      },
       //计算购买产品总价
       totalPrice(){
         let sum=0;
@@ -85,7 +93,7 @@ import throttle from 'lodash/throttle';
       },
       //判断底部复选框是否勾选，选中则全部商品都选中
       isAllChecked(){
-        return this.cartInfoList.every((item)=>{item.isChecked==1});
+        return this.cartInfoList.every((item)=>item.isChecked==1);
       }
     },
     mounted() {
@@ -142,7 +150,29 @@ import throttle from 'lodash/throttle';
         }catch(error){
           alert(error.message);
         }
+      },
+       //删除全部选中的产品
+    async deleteAllCheckedCart() {
+      try {
+        //派发一个action
+        await this.$store.dispatch("shopcart/deleteAllCheckedCart");
+        //再发请求获取购物车列表
+        this.getData();
+      } catch (error) {
+        alert(error.message);
       }
+    },
+    //修改全部产品的选中状态
+    async updateAllCartChecked(event) {
+      try {
+        let isChecked = event.target.checked ? "1" : "0";
+        //派发action
+        await this.$store.dispatch("shopcart/updateAllCartIsChecked", isChecked);
+        this.getData();
+      } catch (error) {
+        alert(error.message);
+      }
+    },
     }
        
       

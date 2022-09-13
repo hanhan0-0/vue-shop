@@ -58,7 +58,7 @@
                     <i class="command">已有<span>2000</span>人评价</i>
                   </div>
                   <div class="operate">
-                    <a href="success-cart.html" target="_blank" class="sui-btn btn-bordered btn-danger">加入购物车</a>
+                    <a href="#" target="_blank" class="sui-btn btn-bordered btn-danger" @click.prevent="addCart(good)">加入购物车</a>
                     <a href="javascript:void(0);" class="sui-btn btn-bordered">收藏</a>
                   </div>
                 </div>
@@ -133,6 +133,22 @@
       this.getData();
     },
     methods: {
+      async addCart(good){
+          try {
+          await this.$store.dispatch("detail/addOrUpdateShopCart", {
+            skuId: good.id,
+            skuNum: 1
+          });
+          sessionStorage.setItem("SKUINFO", JSON.stringify(good));
+          sessionStorage.setItem("attrInfo",JSON.stringify(""));
+          this.$router.push({
+            name: "addCartSuccess",
+            query: { skuNum: 1 }
+          });
+        } catch (error) {
+          alert(error.message);
+        }
+      },
       getData(){
         this.$store.dispatch('search/getSearchList',this.searchParams);
       },

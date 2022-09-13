@@ -28,10 +28,9 @@ export const reqGoodesInfo = (skuId) => {
 };
 // 将产品添加到购物车中，获取更新某一个产品的个数
 export const reqAddOrUpdateShopCart = (skuId, skuNum) => {
-        return requests({ url: `/cart/addToCart/${skuId}/${skuNum}`, method: 'post' });
-    }
-    // 获取购物车列表数据接口
-
+    return requests({ url: `/cart/addToCart/${skuId}/${skuNum}`, method: 'post' });
+};
+// 获取购物车列表数据接口
 export const reqCartList = () => {
     return requests({ url: `/cart/cartList`, method: 'get' });
 };

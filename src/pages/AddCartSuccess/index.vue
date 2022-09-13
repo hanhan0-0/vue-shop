@@ -5,11 +5,11 @@
       <div class="goods">
         <div class="left-good">
           <div class="left-pic">
-            <img :src="skuInfo.skuDefaultImg">
+            <img :src="skuInfo.skuDefaultImg || skuInfo.defaultImg">
           </div>
           <div class="right-info">
-            <p class="title">{{skuInfo.skuName}}</p>
-            <p class="attr">{{skuInfo.Desc}} 数量：{{this.$route.query.skuNum}}</p>
+            <p class="title">{{skuInfo.skuName || skuInfo.title}}</p>
+            <p class="attr">{{skuInfo.Desc || skuInfo.title}} 数量：{{this.$route.query.skuNum}}</p>
             <span>参数信息:</span>
             <span v-for="item in attrInfo" :key="item.id">{{item.saleAttrName}}:{{item.saleAttrValueName}}</span>
           </div>
