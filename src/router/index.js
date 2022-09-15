@@ -12,7 +12,8 @@ import Detail from '../pages/Detail'
 import AddCartSuccess from '../pages/AddCartSuccess'
 import ShopCart from '../pages/ShopCart'
 
-
+import store from '../store'
+import { removeToken } from "../utils/token"
 
 
 
@@ -35,8 +36,7 @@ VueRouter.prototype.replace = function(location, resolve, reject) {
         originReplace.call(this, location, () => {}, () => {})
     }
 }
-
-export default new VueRouter({
+let router = new VueRouter({
     //配置路由
     routes: [{
             path: '/',
@@ -85,4 +85,32 @@ export default new VueRouter({
     scrollBehavior(to, from, savedPosition) {
         return { x: 0, y: 0 };
     }
+});
+router.beforeEach(async(to, from, next) => {
+
+    let token = store.state.user.token;
+    let name = store.state.user.userInfo.name;
+    if (token) {
+        if (to.path == '/login') {
+            alert('请退出登陆后，再重新登陆')
+        } else {
+            if (name) {
+                next();
+            } else {
+                try {
+                    //获取用户信息在首页展示
+                    await store.dispatch("user/getUserInfo");
+                    next();
+                } catch (error) {
+                    //当token失效时
+                    store.dispatch("user/userLogOut");
+                    next('/login');
+                }
+            }
+        }
+    } else {
+        next();
+    }
+
 })
+export default router;
