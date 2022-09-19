@@ -78,8 +78,19 @@
       async userLogin(){
         try{
           const {phone,password}=this;
-          phone && password && await this.$store.dispatch("user/userLogin",{phone,password});
-          this.$router.push("/home");
+          phone && password && (await this.$store.dispatch("user/userLogin",{phone,password}));
+          this.$message({
+             message: '登陆成功',
+             type: 'success',
+             duration:1000
+          });
+          if(this.$route.query){
+              let path=this.$route.query.redirect || '/';
+
+              this.$router.push(path);
+          }else{
+            this.$router.push("/home");
+          }
         }catch(error){
           alert(error.message);
         }

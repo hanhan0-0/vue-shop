@@ -34,8 +34,6 @@ components:{
 },
 mounted(){
     this.$store.dispatch("home/floorList");
-    //获取用户信息在首页展示
-    this.$store.dispatch("user/getUserInfo");
 }
 }
 </script>

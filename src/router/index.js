@@ -4,16 +4,11 @@ import VueRouter from 'vue-router'
 
 Vue.use(VueRouter);
 
-import Home from '../pages/Home'
-import Search from '../pages/Search'
-import Login from '../pages/Login'
-import Register from '../pages/Register'
-import Detail from '../pages/Detail'
-import AddCartSuccess from '../pages/AddCartSuccess'
-import ShopCart from '../pages/ShopCart'
+
+
 
 import store from '../store'
-import { removeToken } from "../utils/token"
+
 
 
 
@@ -41,58 +36,145 @@ let router = new VueRouter({
     routes: [{
             path: '/',
             redirect: "/home",
-            meta: { show: true }
+            meta: { show: true, nologin: true }
         },
         {
             path: "/home",
-            component: Home,
-            meta: { show: true }
+            component: () =>
+                import ("../pages/Home"),
+            meta: { show: true, nologin: true }
         },
         {
             path: '/search/:keyword?',
-            component: Search,
+            component: () =>
+                import ("../pages/Search"),
             name: "Search",
-            meta: { show: true }
+            meta: { show: true, nologin: true }
         },
         {
             path: '/login',
-            component: Login,
-            meta: { show: false }
+            component: () =>
+                import ("../pages/Login"),
+            meta: { show: false, nologin: true }
         },
         {
             path: '/register',
-            component: Register,
-            meta: { show: false }
+            component: () =>
+                import ("../pages/Register"),
+            meta: { show: false, nologin: true }
         },
         {
             path: "/detail/:skuId",
-            component: Detail,
-            meta: { show: true }
+            component: () =>
+                import ("../pages/Detail"),
+            meta: { show: true, nologin: true }
         },
         {
             path: "/addCartSuccess",
             name: 'addCartSuccess',
-            component: AddCartSuccess,
-            meta: { show: true }
+            component: () =>
+                import ("../pages/AddCartSuccess"),
+            meta: { show: true, nologin: true }
         },
         {
             path: "/shopcart",
             name: 'shopcart',
-            component: ShopCart,
-            meta: { show: true }
+            component: () =>
+                import ("../pages/ShopCart"),
+            meta: { show: true, nologin: true }
+        }, {
+            path: "/trade",
+            name: 'trade',
+            component: () =>
+                import ("../pages/Trade"),
+            meta: { show: true, nologin: false },
+            beforeEnter: (to, from, next) => {
+                if (from.path == "/shopcart") {
+                    next();
+                } else {
+                    Vue.prototype.$message({
+                        message: '请从购物车进入交易页面',
+                        type: 'warning',
+                        duration: 1000
+                    });
+                    next(false);
+                }
+            }
         },
+        {
+            path: "/pay",
+            name: 'pay',
+            component: () =>
+                import ("../pages/Pay"),
+            meta: { show: true, nologin: false },
+            beforeEnter: (to, from, next) => {
+                if (from.path == "/trade") {
+                    next();
+                } else {
+                    Vue.prototype.$message({
+                        message: '请从交易页面进入支付页面',
+                        type: 'warning',
+                        duration: 1000
+                    });
+                    next(false);
+                }
+            }
+        },
+        {
+            path: "/paysuccess",
+            name: 'paysuccess',
+            component: () =>
+                import ("../pages/PaySuccess"),
+            meta: { show: true, nologin: false },
+            beforeEnter: (to, from, next) => {
+                if (from.path == "/pay") {
+                    next();
+                } else {
+                    Vue.prototype.$message({
+                        message: '请从支付页面进入支付成功页面',
+                        type: 'warning',
+                        duration: 1000
+                    });
+                    next(false);
+                }
+            }
+        },
+        {
+            path: "/center",
+            name: 'center',
+            component: () =>
+                import ("../pages/Center"),
+            meta: { show: true, nologin: false },
+            redirect: "/center/myorder",
+            children: [{
+                    path: "myorder",
+                    name: 'myorder',
+                    component: () =>
+                        import ("../pages/Center/myOrder"),
+                },
+                {
+                    path: "grouporder",
+                    name: 'grouporder',
+                    component: () =>
+                        import ("../pages/Center/groupOrder"),
+                }
+            ]
+        }
     ],
     scrollBehavior(to, from, savedPosition) {
         return { x: 0, y: 0 };
     }
 });
 router.beforeEach(async(to, from, next) => {
-
     let token = store.state.user.token;
     let name = store.state.user.userInfo.name;
     if (token) {
         if (to.path == '/login') {
-            alert('请退出登陆后，再重新登陆')
+            next(from.path);
+            Vue.prototype.$message({
+                message: '请退出登陆后，再重新登陆',
+                duration: 1000
+            });
         } else {
             if (name) {
                 next();
@@ -109,7 +191,16 @@ router.beforeEach(async(to, from, next) => {
             }
         }
     } else {
-        next();
+        //未登录不能去交易相关，支付相关，个人中心
+        if (!to.meta.nologin) {
+            Vue.prototype.$message({
+                message: '请退出登陆后，再重新登陆',
+                duration: 1000
+            });
+            next('/login?redirect=' + to.path);
+        } else {
+            next();
+        }
     }
 
 })
